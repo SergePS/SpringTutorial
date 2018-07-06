@@ -1,7 +1,7 @@
-package by.serge.impl;
+package by.serge.logger.impl;
 
 import by.serge.Event;
-import by.serge.EventLogger;
+import by.serge.logger.EventLogger;
 
 public class ConsoleEventLogger implements EventLogger {
 

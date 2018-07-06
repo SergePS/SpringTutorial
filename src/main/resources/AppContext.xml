@@ -2,28 +2,52 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+	
+	<import resource="SecondContext.xml"/>
 
 	<bean id="client" class="by.serge.Client">
 		<constructor-arg value="1" />
 		<constructor-arg value="John Smith" />
 	</bean>
-	<bean id="eventLogger" class="by.serge.impl.ConsoleEventLogger"></bean>
+
+	<bean id="eventLogger"
+		class="by.serge.logger.impl.ConsoleEventLogger">
+	</bean>
+
+	<bean id="fileLogger" class="by.serge.logger.impl.FileEventLogger"
+		init-method="init">
+		<constructor-arg value="src/main/resources/log.txt" />
+	</bean>
+
+	<bean id="cacheFileEventLogger"
+		class="by.serge.logger.impl.CacheFileEventLogger"
+		init-method="init"
+		destroy-method="destroy">
+		<constructor-arg type="int" value="2"/>
+		<constructor-arg value="src/main/resources/log.txt" />
+	</bean>
+
+
+
 
 	<bean id="app" class="by.serge.App">
 		<constructor-arg ref="client" />
-		<constructor-arg ref="eventLogger"/>
+		<constructor-arg ref="cacheFileEventLogger" />
 	</bean>
 
-<!-- 	<bean id="event" class="by.serge.Event" scope="prototype" -->
-<!-- 		primary="false"> -->
-<!-- 		<constructor-arg> -->
-<!-- 			<bean id="date" class="java.util.Date"></bean> -->
-<!-- 		</constructor-arg> -->
-<!-- 		<constructor-arg> -->
-<!-- 			<bean id="dateFormat" class="java.text.DateFormat" -->
-<!-- 				factory-method="getDateTimeInstance"></bean> -->
-<!-- 		</constructor-arg> -->
-<!-- 	</bean> -->
+	
+	<bean id="event" class="by.serge.Event" scope="prototype">
+		<constructor-arg>
+			<bean id="date" class="java.util.Date"></bean>
+		</constructor-arg>
+		<constructor-arg>
+			<bean id="dateFormat" class="java.text.DateFormat"
+				factory-method="getDateTimeInstance"></bean>
+		</constructor-arg>
+	</bean>
 
+	
+
+	
+	
 </beans>
