@@ -1,5 +1,10 @@
 package by.serge;
 
+import java.util.Map;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -8,18 +13,22 @@ import by.serge.logger.EventLogger;
 
 public class App {
 
+	private static Logger logger = LogManager.getLogger(App.class);
+
 	private Client client;
-	private EventLogger eventLogger;
+	private EventLogger defaultLogger;
+	private Map<EventType, EventLogger> loggerMap;
 
 
 	App() {
 	}
 
 
-	public App(Client client, EventLogger eventLogger) {
+	public App(Client client, EventLogger defaultLogger, Map<EventType, EventLogger> loggerMap) {
 		super();
 		this.client = client;
-		this.eventLogger = eventLogger;
+		this.defaultLogger = defaultLogger;
+		this.loggerMap = loggerMap;
 	}
 
 
@@ -29,17 +38,30 @@ public class App {
 		if (obj instanceof App) {
 			App app = (App) obj;
 			Event event = (Event) appContext.getBean("event");
-			event.setMsg("Some events for User 1");
-			app.logEvent(event);
+
+			event.setMsg("Some INFO events for User 1");
+			app.logEvent(event, EventType.INFO);
+
+			event.setMsg("Some ERROR events for User 1");
+			app.logEvent(event, EventType.ERROR);
+
+			event.setMsg("Some null events for User 1");
+			app.logEvent(event, null);
 		}
 		((ConfigurableApplicationContext) appContext).close();
 	}
 
 
-	private void logEvent(Event event) {
-		String message = event.getMsg().replaceAll(client.getId(), client.getFullName());
+	private void logEvent(Event event, EventType type) {
+		String message = event.getMsg().replaceAll(client.getId(), client.getTitle() + " " + client.getFullName());
 		event.setMsg(message);
-		eventLogger.logEvent(event);
+
+		if (type == null) {
+			defaultLogger.logEvent(event);
+		} else {
+			logger.log(Level.DEBUG, "loggerMap size = " + loggerMap.size());
+			loggerMap.get(type).logEvent(event);
+		}
 	}
 
 }

@@ -13,6 +13,8 @@ public class CacheFileEventLogger extends FileEventLogger {
 
 	private static Logger logger = LogManager.getFormatterLogger(CacheFileEventLogger.class);
 
+	private final static String NEXT_LINE = "\n";
+
 	private int cacheSize;
 	private List<Event> cache = new ArrayList<>();
 
@@ -38,7 +40,12 @@ public class CacheFileEventLogger extends FileEventLogger {
 
 	private void writeEventsFromCache(List<Event> cache) {
 		StringBuilder sb = new StringBuilder();
+		int i = 0;
 		for (Event evnt : cache) {
+			if (i > 0 && i < cache.size()) {
+				sb.append(NEXT_LINE);
+			}
+			i++;
 			sb.append(evnt.getMsg());
 		}
 		super.logEvent(sb.toString());

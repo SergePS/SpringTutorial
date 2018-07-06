@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-	
-	<import resource="SecondContext.xml"/>
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+	<import resource="SecondContext.xml" />
 
 	<bean id="client" class="by.serge.Client">
 		<constructor-arg value="1" />
 		<constructor-arg value="John Smith" />
+		<property name="title" value="Sir"></property>
 	</bean>
 
-	<bean id="eventLogger"
+	<!-- logger declaration -->
+	<bean id="consoleLogger"
 		class="by.serge.logger.impl.ConsoleEventLogger">
 	</bean>
 
@@ -20,34 +26,34 @@
 	</bean>
 
 	<bean id="cacheFileEventLogger"
-		class="by.serge.logger.impl.CacheFileEventLogger"
-		init-method="init"
+		class="by.serge.logger.impl.CacheFileEventLogger" init-method="init"
 		destroy-method="destroy">
-		<constructor-arg type="int" value="2"/>
+		<constructor-arg type="int" value="2" />
 		<constructor-arg value="src/main/resources/log.txt" />
 	</bean>
 
-
+	<bean id="combinedLogger"
+		class="by.serge.logger.impl.CombinedEventLogger">
+		<constructor-arg>
+			<list>
+				<ref bean="consoleLogger" />
+				<ref bean="fileLogger" />
+				<ref bean="cacheFileEventLogger" />
+			</list>
+		</constructor-arg>
+	</bean>
 
 
 	<bean id="app" class="by.serge.App">
 		<constructor-arg ref="client" />
-		<constructor-arg ref="cacheFileEventLogger" />
-	</bean>
-
-	
-	<bean id="event" class="by.serge.Event" scope="prototype">
+		<constructor-arg ref="cacheFileEventLogger"/>
 		<constructor-arg>
-			<bean id="date" class="java.util.Date"></bean>
-		</constructor-arg>
-		<constructor-arg>
-			<bean id="dateFormat" class="java.text.DateFormat"
-				factory-method="getDateTimeInstance"></bean>
+		<map>
+			<entry key="INFO" value-ref="consoleLogger"></entry>
+			<entry key="ERROR" value-ref="combinedLogger"></entry>
+		</map>
 		</constructor-arg>
 	</bean>
 
-	
 
-	
-	
 </beans>
